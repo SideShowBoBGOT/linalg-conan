@@ -5,7 +5,7 @@ from conan.tools.cmake import CMake
 
 
 class LinalgRecipe(ConanFile):
-    name = "imu"
+    name = "linalg"
     version = "1.0.0"
     generators = ("CMakeToolchain", "CMakeDeps")
     settings = ("os", "build_type", "arch", "compiler")
