@@ -602,6 +602,8 @@ namespace linalg
     template<class T> struct converter<std::array<T,3>, vec<T,3>> { std::array<T,3> operator() (const vec<T,3> & a) const { return {a[0], a[1], a[2]}; } };
     template<class T> struct converter<std::array<T,4>, vec<T,4>> { std::array<T,4> operator() (const vec<T,4> & a) const { return {a[0], a[1], a[2], a[3]}; } };
 
+	template<class A> constexpr scalar_t<A> project(const A & v, const A & onto) { return onto * ((v * onto) / length2(onto)); }
+
     // Provide typedefs for common element types and vector/matrix sizes
     namespace aliases
     {

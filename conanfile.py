@@ -6,7 +6,7 @@ from conan.tools.cmake import CMake
 
 class LinalgRecipe(ConanFile):
     name = "linalg"
-    version = "1.0.0"
+    version = "1.0.1"
     user = "user"
     channel = "stable"
     generators = ("CMakeToolchain", "CMakeDeps")
