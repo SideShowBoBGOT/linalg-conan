@@ -1,0 +1,3 @@
+[submodule "external/type_safe"]
+	path = external/type_safe
+	url = https://github.com/SideShowBoBGOT/type_safe
