@@ -57,6 +57,9 @@
 #include <type_traits>  // For std::enable_if, std::is_same, std::declval
 #include <functional>   // For std::hash declaration
 
+#include <type_safe/math.hpp>
+#include <type_safe/types.hpp>
+
 // In Visual Studio 2015, `constexpr` applied to a member function implies `const`, which causes ambiguous overload resolution
 #if _MSC_VER <= 1900
 #define LINALG_CONSTEXPR14
@@ -129,7 +132,7 @@ namespace linalg
         struct empty {};
         template<class... T> struct scalars;
         template<> struct scalars<> { using type=void; };
-        template<class T, class... U> struct scalars<T,U...> : std::conditional<std::is_arithmetic<T>::value, scalars<U...>, empty>::type {};
+        template<class T, class... U> struct scalars<T,U...> : std::conditional<std::is_arithmetic<T>::value or type_safe::detail::is_type_safe_integer<T>{} or type_safe::detail::is_type_safe_floating_type<T>{}, scalars<U...>, empty>::type {};
         template<class... T> using scalars_t = typename scalars<T...>::type;
 
         // Helpers which indicate how apply(F, ...) should be called for various arguments
@@ -398,9 +401,17 @@ namespace linalg
     // Functions for coalescing scalar values
     template<class A> constexpr bool any (const A & a) { return fold(detail::op_or{}, false, a); }
     template<class A> constexpr bool all (const A & a) { return fold(detail::op_and{}, true, a); }
-    template<class A> constexpr scalar_t<A> sum    (const A & a) { return fold(detail::op_add{}, scalar_t<A>(0), a); }
-    template<class A> constexpr scalar_t<A> product(const A & a) { return fold(detail::op_mul{}, scalar_t<A>(1), a); }
-    template<class A> constexpr scalar_t<A> minelem(const A & a) { return fold(detail::min{}, a.x, a); }
+
+	template<class A> constexpr std::enable_if_t<not type_safe::detail::is_type_safe_integer<scalar_t<A>>{} and not type_safe::detail::is_type_safe_floating_type<scalar_t<A>>{}, scalar_t<A>> sum(const A & a) { return fold(detail::op_add{}, scalar_t<A>(0), a); }
+    template<class A> constexpr typename type_safe::detail::check_integer<scalar_t<A>>::type sum    (const A & a) { return fold(detail::op_add{}, scalar_t<A>{static_cast<typename scalar_t<A>::integer_type>(0)}, a); }
+    template<class A> constexpr typename type_safe::detail::check_floating_point<scalar_t<A>>::type sum    (const A & a) { return fold(detail::op_add{}, scalar_t<A>{static_cast<typename scalar_t<A>::floating_point_type>(0)}, a); }
+
+	template<class A> constexpr std::enable_if_t<not type_safe::detail::is_type_safe_integer<scalar_t<A>>{} and not type_safe::detail::is_type_safe_floating_type<scalar_t<A>>{}, scalar_t<A>> product(const A & a) { return fold(detail::op_mul{}, scalar_t<A>(1), a); }
+	template<class A> constexpr typename type_safe::detail::check_integer<scalar_t<A>>::type product    (const A & a) { return fold(detail::op_mul{}, scalar_t<A>{static_cast<typename scalar_t<A>::integer_type>(1)}, a); }
+	template<class A> constexpr typename type_safe::detail::check_floating_point<scalar_t<A>>::type product    (const A & a) { return fold(detail::op_mul{}, scalar_t<A>{static_cast<typename scalar_t<A>::floating_point_type>(1)}, a); }
+
+
+	template<class A> constexpr scalar_t<A> minelem(const A & a) { return fold(detail::min{}, a.x, a); }
     template<class A> constexpr scalar_t<A> maxelem(const A & a) { return fold(detail::max{}, a.x, a); }
     template<class T, int M> int argmin(const vec<T,M> & a) { int j=0; for(int i=1; i<M; ++i) if(a[i] < a[j]) j = i; return j; }
     template<class T, int M> int argmax(const vec<T,M> & a) { int j=0; for(int i=1; i<M; ++i) if(a[i] > a[j]) j = i; return j; }

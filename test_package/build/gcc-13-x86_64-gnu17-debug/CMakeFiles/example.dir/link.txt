@@ -1,0 +1,1 @@
+/usr/local/bin/c++ -m64 -g -m64 CMakeFiles/example.dir/src/example.cpp.o -o example 

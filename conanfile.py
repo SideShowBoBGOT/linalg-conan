@@ -6,7 +6,7 @@ from conan.tools.cmake import CMake
 
 class LinalgRecipe(ConanFile):
     name = "linalg"
-    version = "1.0.2"
+    version = "1.0.4"
     user = "user"
     channel = "stable"
     generators = ("CMakeToolchain", "CMakeDeps")
@@ -22,9 +22,18 @@ class LinalgRecipe(ConanFile):
         cmake = CMake(self)
         cmake.install()
 
+    def requirements(self):
+        self.requires("type_safe/1.0.10@user/stable", transitive_headers=True)
+
+
     def build_requirements(self):
-        self.tool_requires("cmake/[>=3.18]")
+        self.tool_requires("cmake/[>=3.5]")
+        self.tool_requires("type_safe/1.0.10@user/stable")
 
     def layout(self):
         self.folders.build = "conan_external"
         self.folders.generators = os.path.join(self.folders.build, "generators")
+
+    def package_info(self):
+        self.cpp_info.bindirs = []
+        self.cpp_info.libdirs = []
