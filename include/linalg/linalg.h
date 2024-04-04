@@ -531,11 +531,15 @@ namespace linalg
     template<class T, class... R> constexpr vec<T,4> qmul(const vec<T,4> & a, R... r)  { return qmul(a, qmul(r...)); }
 
     // Support for 3D spatial rotations using quaternions, via qmul(qmul(q, v), qconj(q))
-    template<class T> constexpr vec<T,3>   qxdir (const vec<T,4> & q)                          { return {q.w*q.w+q.x*q.x-q.y*q.y-q.z*q.z, (q.x*q.y+q.z*q.w)*2, (q.z*q.x-q.y*q.w)*2}; }
-    template<class T> constexpr vec<T,3>   qydir (const vec<T,4> & q)                          { return {(q.x*q.y-q.z*q.w)*2, q.w*q.w-q.x*q.x+q.y*q.y-q.z*q.z, (q.y*q.z+q.x*q.w)*2}; }
-    template<class T> constexpr vec<T,3>   qzdir (const vec<T,4> & q)                          { return {(q.z*q.x+q.y*q.w)*2, (q.y*q.z-q.x*q.w)*2, q.w*q.w-q.x*q.x-q.y*q.y+q.z*q.z}; }
+    // template<class T> constexpr std::enable_if_t<not type_safe::detail::is_type_safe_integer<T>{} and not type_safe::detail::is_type_safe_floating_type<T>{}, vec<T,3>>  qxdir (const vec<T,4> & q)                          { return {q.w*q.w+q.x*q.x-q.y*q.y-q.z*q.z, (q.x*q.y+q.z*q.w)*2, (q.z*q.x-q.y*q.w)*2}; }
+	template<class T> constexpr vec<typename type_safe::detail::check_floating_point<T>::type, 3> qxdir (const vec<T,4> & q) { return {q.w*q.w+q.x*q.x-q.y*q.y-q.z*q.z, (q.x*q.y+q.z*q.w)*static_cast<typename T::floating_point_type>(2), (q.z*q.x-q.y*q.w)*static_cast<typename T::floating_point_type>(2)}; }
+	// template<class T> constexpr vec<T,3>   qydir (const vec<T,4> & q)                          { return {(q.x*q.y-q.z*q.w)*2, q.w*q.w-q.x*q.x+q.y*q.y-q.z*q.z, (q.y*q.z+q.x*q.w)*2}; }
+	template<class T> constexpr vec<typename type_safe::detail::check_floating_point<T>::type, 3>   qydir (const vec<T,4> & q) { return {(q.x*q.y-q.z*q.w)*static_cast<typename T::floating_point_type>(2), q.w*q.w-q.x*q.x+q.y*q.y-q.z*q.z, (q.y*q.z+q.x*q.w)*static_cast<typename T::floating_point_type>(2)}; }
+    // template<class T> constexpr vec<T,3>   qzdir (const vec<T,4> & q)                          { return {(q.z*q.x+q.y*q.w)*2, (q.y*q.z-q.x*q.w)*2, q.w*q.w-q.x*q.x-q.y*q.y+q.z*q.z}; }
+    template<class T> constexpr vec<typename type_safe::detail::check_floating_point<T>::type, 3>   qzdir (const vec<T,4> & q) { return {(q.z*q.x+q.y*q.w)*static_cast<typename T::floating_point_type>(2), (q.y*q.z-q.x*q.w)*static_cast<typename T::floating_point_type>(2), q.w*q.w-q.x*q.x-q.y*q.y+q.z*q.z}; }
     template<class T> constexpr mat<T,3,3> qmat  (const vec<T,4> & q)                          { return {qxdir(q), qydir(q), qzdir(q)}; }
-    template<class T> constexpr vec<T,3>   qrot  (const vec<T,4> & q, const vec<T,3> & v)      { return qxdir(q)*v.x + qydir(q)*v.y + qzdir(q)*v.z; }
+    // template<class T> constexpr vec<T,3>   qrot  (const vec<T,4> & q, const vec<T,3> & v)      { return qxdir(q)*v.x + qydir(q)*v.y + qzdir(q)*v.z; }
+    template<class T> constexpr vec<typename type_safe::detail::check_floating_point<T>::type, 3>   qrot  (const vec<T,4> & q, const vec<T,3> & v)      { return qxdir(q)*v.x + qydir(q)*v.y + qzdir(q)*v.z; }
     template<class T> T                    qangle(const vec<T,4> & q)                          { return std::atan2(length(q.xyz()), q.w)*2; }
     template<class T> vec<T,3>             qaxis (const vec<T,4> & q)                          { return normalize(q.xyz()); }
     template<class T> vec<T,4>             qnlerp(const vec<T,4> & a, const vec<T,4> & b, T t) { return nlerp(a, dot(a,b) < 0 ? -b : b, t); }
@@ -592,8 +596,15 @@ namespace linalg
     // Factory functions for 3D spatial transformations (will possibly be removed or changed in a future version)
     enum fwd_axis { neg_z, pos_z };                 // Should projection matrices be generated assuming forward is {0,0,-1} or {0,0,1}
     enum z_range { neg_one_to_one, zero_to_one };   // Should projection matrices map z into the range of [-1,1] or [0,1]?
-    template<class T> vec<T,4>   rotation_quat     (const vec<T,3> & axis, T angle)         { return {axis*std::sin(angle/2), std::cos(angle/2)}; }
-    template<class T> vec<T,4>   rotation_quat     (const mat<T,3,3> & m);
+
+	// template<class T> std::enable_if_t<not type_safe::detail::is_type_safe_integer<T>{} and not type_safe::detail::is_type_safe_floating_type<T>{}, vec<T,4>> rotation_quat(const vec<T,3> & axis, T angle) { return {axis*std::sin(angle/2), std::cos(angle/2)}; }
+	// template<class T> vec<typename type_safe::detail::check_integer<T>::type, 4> rotation_quat(const vec<T,3> & axis, T angle) { return {axis*std::sin(angle / static_cast<typename T::integer_type>(2)), std::cos(angle/static_cast<typename T::integer_type>(2))}; }
+	// template<class T> vec<typename type_safe::detail::check_integer<T>::type, 4> rotation_quat(const vec<T,3> & axis, typename T::integer_type angle) { return {axis*std::sin(angle / static_cast<typename T::integer_type>(2)), std::cos(angle/static_cast<typename T::integer_type>(2))}; }
+	template<class T> vec<typename type_safe::detail::check_floating_point<T>::type, 4> rotation_quat(const vec<T,3> & axis, T angle) { return {axis*std::sin(angle / static_cast<typename T::floating_point_type>(2)), std::cos(angle/static_cast<typename T::floating_point_type>(2))}; }
+	// template<class T> vec<typename type_safe::detail::check_floating_point<T>::type, 4> rotation_quat(const vec<T,3> & axis, typename T::floating_point_type angle) { return {axis*std::sin(angle / static_cast<typename T::floating_point_type>(2)), std::cos(angle/static_cast<typename T::floating_point_type>(2))}; }
+
+
+	template<class T> vec<T,4>   rotation_quat     (const mat<T,3,3> & m);
     template<class T> mat<T,4,4> translation_matrix(const vec<T,3> & translation)           { return {{1,0,0,0},{0,1,0,0},{0,0,1,0},{translation,1}}; }
     template<class T> mat<T,4,4> rotation_matrix   (const vec<T,4> & rotation)              { return {{qxdir(rotation),0}, {qydir(rotation),0}, {qzdir(rotation),0}, {0,0,0,1}}; }
     template<class T> mat<T,4,4> scaling_matrix    (const vec<T,3> & scaling)               { return {{scaling.x,0,0,0}, {0,scaling.y,0,0}, {0,0,scaling.z,0}, {0,0,0,1}}; }
