@@ -23,12 +23,12 @@ class LinalgRecipe(ConanFile):
         cmake.install()
 
     def requirements(self):
-        self.requires("type_safe/1.0.11@user/stable", transitive_headers=True)
+        self.requires("type_safe/1.0.12@user/stable", transitive_headers=True)
 
 
     def build_requirements(self):
         self.tool_requires("cmake/[>=3.5]")
-        self.tool_requires("type_safe/1.0.11@user/stable")
+        self.tool_requires("type_safe/1.0.12@user/stable")
 
     def layout(self):
         self.folders.build = "conan_external"

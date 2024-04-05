@@ -6,8 +6,8 @@
 int main() {
 	using namespace type_safe::types::literals;
 
-	linalg::vec<type_safe::types::double_t, 2> g{2.0, 2.0};
-	std::cout << linalg::length(g) << std::endl;
+	linalg::vec<type_safe::types::int32_t, 2> g{2, 2};
+
 
 	std::cout << "Hello, World!" << std::endl;
 
