@@ -24,5 +24,5 @@ install(DIRECTORY include/  # Note the slash at the end, which is important
         FILES_MATCHING PATTERN "*.h")
 
 
-add_executable(main main.cpp)
-target_link_libraries(main PRIVATE linalg)
+#add_executable(main main.cpp)
+#target_link_libraries(main PRIVATE linalg)
