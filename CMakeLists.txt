@@ -4,7 +4,7 @@ project(linalg)
 set(CONAN_EXTERNAL "${CMAKE_CURRENT_SOURCE_DIR}/conan_external")
 include(${CONAN_EXTERNAL}/generators/conan_toolchain.cmake)
 
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 11)
 
 add_library(linalg INTERFACE include/linalg/linalg.h)
 target_include_directories(linalg INTERFACE include)

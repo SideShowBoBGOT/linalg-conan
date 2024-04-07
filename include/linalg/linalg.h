@@ -402,11 +402,11 @@ namespace linalg
     template<class A> constexpr bool any (const A & a) { return fold(detail::op_or{}, false, a); }
     template<class A> constexpr bool all (const A & a) { return fold(detail::op_and{}, true, a); }
 
-	template<class A> constexpr std::enable_if_t<not type_safe::detail::is_type_safe_integer<scalar_t<A>>{} and not type_safe::detail::is_type_safe_floating_type<scalar_t<A>>{}, scalar_t<A>> sum(const A & a) { return fold(detail::op_add{}, scalar_t<A>(0), a); }
+	template<class A> constexpr typename std::enable_if<not type_safe::detail::is_type_safe_integer<scalar_t<A>>{} and not type_safe::detail::is_type_safe_floating_type<scalar_t<A>>{}, scalar_t<A>>::type sum(const A & a) { return fold(detail::op_add{}, scalar_t<A>(0), a); }
     template<class A> constexpr typename type_safe::detail::check_integer<scalar_t<A>>::type sum    (const A & a) { return fold(detail::op_add{}, scalar_t<A>{static_cast<typename scalar_t<A>::integer_type>(0)}, a); }
     template<class A> constexpr typename type_safe::detail::check_floating_point<scalar_t<A>>::type sum    (const A & a) { return fold(detail::op_add{}, scalar_t<A>{static_cast<typename scalar_t<A>::floating_point_type>(0)}, a); }
 
-	template<class A> constexpr std::enable_if_t<not type_safe::detail::is_type_safe_integer<scalar_t<A>>{} and not type_safe::detail::is_type_safe_floating_type<scalar_t<A>>{}, scalar_t<A>> product(const A & a) { return fold(detail::op_mul{}, scalar_t<A>(1), a); }
+	template<class A> constexpr typename std::enable_if<not type_safe::detail::is_type_safe_integer<scalar_t<A>>{} and not type_safe::detail::is_type_safe_floating_type<scalar_t<A>>{}, scalar_t<A>>::type product(const A & a) { return fold(detail::op_mul{}, scalar_t<A>(1), a); }
 	template<class A> constexpr typename type_safe::detail::check_integer<scalar_t<A>>::type product    (const A & a) { return fold(detail::op_mul{}, scalar_t<A>{static_cast<typename scalar_t<A>::integer_type>(1)}, a); }
 	template<class A> constexpr typename type_safe::detail::check_floating_point<scalar_t<A>>::type product    (const A & a) { return fold(detail::op_mul{}, scalar_t<A>{static_cast<typename scalar_t<A>::floating_point_type>(1)}, a); }
 
