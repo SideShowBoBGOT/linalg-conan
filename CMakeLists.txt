@@ -6,7 +6,8 @@ include(${CONAN_EXTERNAL}/generators/conan_toolchain.cmake)
 
 set(CMAKE_CXX_STANDARD 11)
 
-add_library(linalg INTERFACE include/linalg/linalg.h)
+#add_library(linalg INTERFACE include/linalg/linalg.h)
+add_library(linalg INTERFACE)
 target_include_directories(linalg INTERFACE include)
 find_package(type_safe REQUIRED)
 target_link_libraries(linalg INTERFACE type_safe::type_safe)
